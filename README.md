@@ -275,6 +275,29 @@ chmod +x xiaohongshu-mcp-darwin-arm64
 
 **⚠️ 重要提示**：首次运行时会自动下载无头浏览器（约 150MB），请确保网络连接正常。后续运行无需重复下载。
 
+如果自动下载失败（例如网络受限或提示找不到浏览器），请手动指定本机 Chrome/Edge 路径运行登录工具，例如：
+
+```bash
+# Windows 示例（PowerShell/CMD 均可）
+.\xiaohongshu-login-windows-amd64.exe -bin "C:\Program Files\Google\Chrome\Application\chrome.exe"
+```
+
+Linux 下如果提示缺少 X server / `$DISPLAY`（登录工具默认需要可视化界面），请在有桌面环境的机器运行登录并确保 `$DISPLAY` 可用；`xvfb-run` 仅提供虚拟显示，不会弹出可见界面。如果只是为了完成登录流程，可先安装 `xvfb` 再使用 `xvfb-run`：
+
+```bash
+# 安装 xvfb（按发行版选择其一）
+sudo apt-get update && sudo apt-get install -y xvfb
+# 或
+sudo yum install -y xorg-x11-server-Xvfb
+# 或
+sudo pacman -S --noconfirm xvfb
+```
+
+```bash
+# Linux 示例（需要安装 xvfb）
+xvfb-run -a ./xiaohongshu-login-linux-amd64 -bin /root/.cache/ms-playwright/chromium-1208/chrome-linux/chrome
+```
+
 **方式二：源码编译**
 
 <details>

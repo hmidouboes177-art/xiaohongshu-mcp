@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const exploreURL = "https://www.xiaohongshu.com/explore"
+
 type LoginAction struct {
 	page *rod.Page
 }
@@ -18,7 +20,9 @@ func NewLogin(page *rod.Page) *LoginAction {
 
 func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {
 	pp := a.page.Context(ctx)
-	pp.MustNavigate("https://www.xiaohongshu.com/explore").MustWaitLoad()
+	if err := navigateExplore(pp); err != nil {
+		return false, err
+	}
 
 	time.Sleep(1 * time.Second)
 
@@ -28,7 +32,7 @@ func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {
 	}
 
 	if !exists {
-		return false, errors.Wrap(err, "login status element not found")
+		return false, nil
 	}
 
 	return true, nil
@@ -38,7 +42,9 @@ func (a *LoginAction) Login(ctx context.Context) error {
 	pp := a.page.Context(ctx)
 
 	// 导航到小红书首页，这会触发二维码弹窗
-	pp.MustNavigate("https://www.xiaohongshu.com/explore").MustWaitLoad()
+	if err := navigateExplore(pp); err != nil {
+		return err
+	}
 
 	// 等待一小段时间让页面完全加载
 	time.Sleep(2 * time.Second)
@@ -51,7 +57,9 @@ func (a *LoginAction) Login(ctx context.Context) error {
 
 	// 等待扫码成功提示或者登录完成
 	// 这里我们等待登录成功的元素出现，这样更简单可靠
-	pp.MustElement(".main-container .user .link-wrapper .channel")
+	if _, err := pp.Element(".main-container .user .link-wrapper .channel"); err != nil {
+		return errors.Wrap(err, "wait login success element failed")
+	}
 
 	return nil
 }
@@ -60,7 +68,9 @@ func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error
 	pp := a.page.Context(ctx)
 
 	// 导航到小红书首页，这会触发二维码弹窗
-	pp.MustNavigate("https://www.xiaohongshu.com/explore").MustWaitLoad()
+	if err := navigateExplore(pp); err != nil {
+		return "", false, err
+	}
 
 	// 等待一小段时间让页面完全加载
 	time.Sleep(2 * time.Second)
@@ -71,7 +81,12 @@ func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error
 	}
 
 	// 获取二维码图片
-	src, err := pp.MustElement(".login-container .qrcode-img").Attribute("src")
+	qrcode, err := pp.Element(".login-container .qrcode-img")
+	if err != nil {
+		return "", false, errors.Wrap(err, "get qrcode element failed")
+	}
+
+	src, err := qrcode.Attribute("src")
 	if err != nil {
 		return "", false, errors.Wrap(err, "get qrcode src failed")
 	}
@@ -80,6 +95,18 @@ func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error
 	}
 
 	return *src, false, nil
+}
+
+func navigateExplore(page *rod.Page) error {
+	if err := page.Navigate(exploreURL); err != nil {
+		return errors.Wrap(err, "navigate to xiaohongshu failed, please check proxy credentials/network")
+	}
+
+	if err := page.WaitLoad(); err != nil {
+		return errors.Wrap(err, "wait xiaohongshu page load failed")
+	}
+
+	return nil
 }
 
 func (a *LoginAction) WaitForLogin(ctx context.Context) bool {

@@ -55,6 +55,12 @@
 ./xiaohongshu-login-windows-amd64.exe
 ```
 
+如果提示“找不到浏览器/无法下载浏览器”，请手动指定本机浏览器路径，例如：
+
+```
+.\xiaohongshu-login-windows-amd64.exe -bin "C:\Program Files\Google\Chrome\Application\chrome.exe"
+```
+
 ![](https://wdcdn.qpic.cn/MTY4ODg1NTIyMTY1ODI2NQ_557435_MEWWz-JeHubKmkhc_1760067518?w=1709&h=810&type=image/png)
 
 等待下载完

@@ -275,6 +275,29 @@ chmod +x xiaohongshu-mcp-darwin-arm64
 
 **⚠️ Important Note**: The headless browser will be automatically downloaded on first run (about 150MB), please ensure a stable network connection. Subsequent runs will not require re-downloading.
 
+If the auto-download fails (e.g. restricted network or browser not found), pass the local Chrome/Edge path when running the login tool, for example:
+
+```bash
+# Windows example (PowerShell/CMD)
+.\xiaohongshu-login-windows-amd64.exe -bin "C:\Program Files\Google\Chrome\Application\chrome.exe"
+```
+
+On Linux, if you see missing X server / `$DISPLAY` errors (the login tool requires a UI by default), run the login on a machine with a desktop environment and ensure `$DISPLAY` is available; `xvfb-run` only provides a virtual display and will not show a visible window. If you just need to complete the login flow, install `xvfb` and use `xvfb-run`:
+
+```bash
+# Install xvfb (choose one for your distro)
+sudo apt-get update && sudo apt-get install -y xvfb
+# or
+sudo yum install -y xorg-x11-server-Xvfb
+# or
+sudo pacman -S --noconfirm xvfb
+```
+
+```bash
+# Linux example (requires xvfb)
+xvfb-run -a ./xiaohongshu-login-linux-amd64 -bin /root/.cache/ms-playwright/chromium-1208/chrome-linux/chrome
+```
+
 **Method 2: Build from Source**
 
 <details>
